@@ -13,11 +13,17 @@ class PokedexVC: UIViewController, UICollectionViewDelegate, UICollectionViewDat
     
     @IBOutlet weak var collection: UICollectionView! 
     
+    var pokemons = [Pokemon]()
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         collection.dataSource = self
         collection.delegate = self
+        
+        parsePokemonCSV()
+        
         
         let charmander = Pokemon(name: "Charmander", pokedexId: 4)
         
@@ -25,13 +31,48 @@ class PokedexVC: UIViewController, UICollectionViewDelegate, UICollectionViewDat
         
     }
     
+    
+    
+    
+    func parsePokemonCSV() {
+        
+        let path = Bundle.main.path(forResource: "pokemon", ofType: "csv")!
+        
+        do {
+            let csv = try CSV(contentsOfURL: path)
+            let rows = csv.rows
+            print(rows)
+            
+            for row in rows {
+                let pokeId = Int(row["id"]!)!
+                let name = row["identifier"]!
+                
+                let poke = Pokemon(name: name, pokedexId: pokeId)
+                pokemons.append(poke)
+            }
+            
+        } catch let err as NSError {
+                print(err.debugDescription)
+            
+        }
+        
+    }
+    
+    
+    
+    //Functions necessary for the Collection View
+    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
         if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PokeCell", for: indexPath) as? PokeCell {
             
             
-            let pokemon = Pokemon(name: "Pokemon", pokedexId: indexPath.row+1)
-            cell.configureCell(pokemon: pokemon)
+            
+            let poke = pokemons[indexPath.row]
+            cell.configureCell(pokemon: poke)
+            
+            //let pokemon = Pokemon(name: "Pokemon", pokedexId: indexPath.row+1)
+            //cell.configureCell(pokemon: pokemon)
             
             
             return cell
@@ -45,18 +86,21 @@ class PokedexVC: UIViewController, UICollectionViewDelegate, UICollectionViewDat
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 30
+        return pokemons.count
     }
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
     }
     
-    //falta una funcion sizeforitem
+    //this comes from UICollectionViewDelegateFlowLayout
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: 105, height: 105)
     }
 
+    //end
+    
+    
 
 }
 
