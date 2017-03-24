@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import AVFoundation
 
 class PokedexVC: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout{
 
@@ -15,6 +16,7 @@ class PokedexVC: UIViewController, UICollectionViewDelegate, UICollectionViewDat
     
     var pokemons = [Pokemon]()
     
+    var musicPlayer: AVAudioPlayer!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -23,15 +25,39 @@ class PokedexVC: UIViewController, UICollectionViewDelegate, UICollectionViewDat
         collection.delegate = self
         
         parsePokemonCSV()
+        initAudio()
         
-        
-        let charmander = Pokemon(name: "Charmander", pokedexId: 4)
-        
-        print(charmander.name)
+        //let charmander = Pokemon(name: "Charmander", pokedexId: 4)
+        //print(charmander.name)
         
     }
     
     
+    @IBAction func musicButtonPreessed(_ sender: UIButton) {
+        
+        if musicPlayer.isPlaying {
+            musicPlayer.pause()
+            sender.alpha = 0.2
+        } else {
+            musicPlayer.play()
+            sender.alpha = 1.0
+        }
+    }
+    
+    func initAudio() {
+        let path = Bundle.main.path(forResource: "music", ofType: ".mp3")!
+        
+        do {
+            musicPlayer = try AVAudioPlayer(contentsOf: URL(string: path)!)
+            musicPlayer.prepareToPlay()
+            musicPlayer.numberOfLoops = -1
+            musicPlayer.play()
+        } catch let err as NSError {
+            print(err.debugDescription)
+            
+        }
+        
+    }
     
     
     func parsePokemonCSV() {
@@ -41,7 +67,7 @@ class PokedexVC: UIViewController, UICollectionViewDelegate, UICollectionViewDat
         do {
             let csv = try CSV(contentsOfURL: path)
             let rows = csv.rows
-            print(rows)
+            //print(rows) //print the readed rows
             
             for row in rows {
                 let pokeId = Int(row["id"]!)!
