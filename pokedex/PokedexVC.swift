@@ -170,6 +170,7 @@ class PokedexVC: UIViewController, UICollectionViewDelegate, UICollectionViewDat
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         view.endEditing(true)
     }
+
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         
