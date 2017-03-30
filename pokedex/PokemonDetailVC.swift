@@ -41,7 +41,29 @@ class PokemonDetailVC: UIViewController {
         
         nameLabel.text = "\(pokemon.name.capitalized)"
         pokemonImage.image = UIImage(named: "\(pokemon.pokedexId)")
+        
+        pokemon.downloadPokemonDetail {
+            //What ever werun here willl only be called after the download is complete
+            self.updateUI()
+            
+            
+        }
+        
     }
+    
+    func updateUI() {
+        
+        defenseLabel.text = pokemon.defense
+        attackLabel.text = pokemon.attack
+        weightLabel.text = pokemon.weight
+        heightLabel.text = pokemon.height
+        
+        currentEvoImage.image = UIImage(named: "\(pokemon.pokedexId)")
+        
+        nextEvoImage.image = UIImage(named: "\(pokemon.pokedexId+1)")
+        
+    }
+    
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
