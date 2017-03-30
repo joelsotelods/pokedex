@@ -8,8 +8,8 @@
 
 import Foundation
 
-let URL_BASE = "http://pokeapi.co/api/"
-let URL_VERSION = "v1"
+let URL_BASE = "http://pokeapi.co"
+let URL_VERSION = "/api/v1"
 let URL_POKEMON = "/pokemon/"
 
 let URL_FINAL = URL_BASE + URL_VERSION + URL_POKEMON

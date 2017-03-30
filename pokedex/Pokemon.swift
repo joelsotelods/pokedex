@@ -23,6 +23,7 @@ class Pokemon {
     private var _nextEvolutionTxt: String!
     
     private var _pokemonURL: String!
+    private var _pokemonDescURL: String!
     
     
     // Get-ters
@@ -122,6 +123,40 @@ class Pokemon {
                     self._defense = "\(defense)"
                 }
                 
+                
+                if let types = dict["types"] as? [Dictionary<String, String>] , types.count > 0 {
+                    
+                    if let type = types[0]["name"] {
+                        self._type = type.capitalized
+                    }
+                    
+                    if types.count > 1 {
+                        for x in 1..<types.count {
+                            if let name = types[x]["name"] {
+                                self._type! += "/\(name.capitalized)"
+                            }
+                        }
+                    }
+                }
+                else {
+                    self._type = ""
+                }
+                 print(self._type)
+                
+                if let descriptions = dict["descriptions"] as? [Dictionary<String, String>] {
+                    
+       
+                    if let descriptionURL = descriptions[0]["resource_uri"] {
+                        self._pokemonDescURL = URL_BASE + descriptionURL
+                        
+                        
+                        
+                    }
+                    
+                    
+                }
+                
+                
                 print(self._attack)
                 print(self._defense)
                 print(self._height)
@@ -129,13 +164,27 @@ class Pokemon {
                 
                 //_description: String!
                 //_type: String!
-                //_defense: String!
-                //_height: String!
-                //_weight: String!
-                //_attack: String!
                 //_nextEvolutionTxt: String!
                 
                 
+            }
+            
+            completed()
+            
+        }
+    }
+    
+    
+    func downloadPokemonDetailDescription(completed: @escaping DownloadComplete) {
+        Alamofire.request(_pokemonDescURL).responseJSON {
+            (response) in
+            if let dict = response.result.value as? Dictionary<String, AnyObject> {
+                
+                if let description = dict["description"] as? String {
+                    
+                    self._description = description
+                    print(description)
+                }
             }
             
             completed()
