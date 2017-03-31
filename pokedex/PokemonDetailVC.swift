@@ -44,15 +44,12 @@ class PokemonDetailVC: UIViewController {
         currentEvoImage.image = UIImage(named: "\(pokemon.pokedexId)")
         pokedexIDLabel.text = "\(pokemon.pokedexId)"
         
+        nextEvoImage.isHidden = true
         
-        nextEvoImage.image = UIImage(named: "\(pokemon.pokedexId+1)")
         
         pokemon.downloadPokemonDetail {
             //What ever werun here willl only be called after the download is complete
-            
-            self.pokemon.downloadPokemonDetailDescription {
-                self.updateUI()
-            }
+
             
             self.updateUI()
             
@@ -74,6 +71,14 @@ class PokemonDetailVC: UIViewController {
         
         detailLabel.text = pokemon.description
         
+        if pokemon.nextEvolutionName == "" {
+            nextEvolutionLabel.text = "No evolutions"
+            nextEvoImage.isHidden = true
+        } else {
+            nextEvoImage.isHidden = false
+            nextEvoImage.image = UIImage(named: "\(pokemon.nextEvolutionId)")
+            nextEvolutionLabel.text = "Next Evolution: #\(pokemon.nextEvolutionId) \(pokemon.nextEvolutionName) LVL \(pokemon.nextEvolutionLevel)"
+        }
       
         
     }

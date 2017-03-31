@@ -20,10 +20,11 @@ class Pokemon {
     private var _height: String!
     private var _weight: String!
     private var _attack: String!
-    private var _nextEvolutionTxt: String!
+    private var _nextEvolutionName: String!
+    private var _nextEvolutionId: String!
+    private var _nextEvolutionLevel: String!
     
     private var _pokemonURL: String!
-    private var _pokemonDescURL: String!
     
     
     // Get-ters
@@ -81,14 +82,26 @@ class Pokemon {
         return _attack
     }
     
-    var nextEvolutionTxt: String {
-        if _nextEvolutionTxt == nil {
-            _nextEvolutionTxt = ""
+    var nextEvolutionName: String {
+        if _nextEvolutionName == nil {
+            _nextEvolutionName = ""
         }
-        return _nextEvolutionTxt
+        return _nextEvolutionName
     }
     
+    var nextEvolutionId: String {
+        if _nextEvolutionId == nil {
+            _nextEvolutionId = ""
+        }
+        return _nextEvolutionId
+    }
     
+    var nextEvolutionLevel: String {
+        if _nextEvolutionLevel == nil {
+            _nextEvolutionLevel = ""
+        }
+        return _nextEvolutionLevel
+    }
     
     // Init
     
@@ -102,8 +115,7 @@ class Pokemon {
     // Alamofire requests for the detail
     
     func downloadPokemonDetail(completed: @escaping DownloadComplete) {
-        Alamofire.request(_pokemonURL).responseJSON {
-            (response) in
+        Alamofire.request(_pokemonURL).responseJSON(completionHandler:  { (response) in
             if let dict = response.result.value as? Dictionary<String, AnyObject> {
                 
                 if let weight = dict["weight"] as? String {
@@ -123,7 +135,6 @@ class Pokemon {
                     self._defense = "\(defense)"
                 }
                 
-                
                 if let types = dict["types"] as? [Dictionary<String, String>] , types.count > 0 {
                     
                     if let type = types[0]["name"] {
@@ -141,55 +152,81 @@ class Pokemon {
                 else {
                     self._type = ""
                 }
-                 print(self._type)
                 
-                if let descriptions = dict["descriptions"] as? [Dictionary<String, String>] {
+                
+                if let descriptions = dict["descriptions"] as? [Dictionary<String, String>], descriptions.count > 0  {
                     
        
                     if let descriptionURL = descriptions[0]["resource_uri"] {
-                        self._pokemonDescURL = URL_BASE + descriptionURL
                         
-                        
-                        
+                        Alamofire.request(URL_BASE + descriptionURL).responseJSON(completionHandler: { (response) in
+                            
+                            if let dict = response.result.value as? Dictionary<String, AnyObject> {
+                                
+                                if let descriptiond = dict["description"] as? String {
+                                    
+                                    self._description = descriptiond
+                                    print(descriptiond)
+                                }
+                            }
+                            
+                            completed()
+                        })
                     }
-                    
-                    
+                    else {
+                        self._description = ""
+                    }
                 }
                 
                 
-                print(self._attack)
-                print(self._defense)
-                print(self._height)
-                print(self._weight)
-                
-                //_description: String!
-                //_type: String!
-                //_nextEvolutionTxt: String!
-                
-                
-            }
-            
-            completed()
-            
-        }
-    }
-    
-    
-    func downloadPokemonDetailDescription(completed: @escaping DownloadComplete) {
-        Alamofire.request(_pokemonDescURL).responseJSON {
-            (response) in
-            if let dict = response.result.value as? Dictionary<String, AnyObject> {
-                
-                if let description = dict["description"] as? String {
+                if let evolutions = dict["evolutions"] as? [Dictionary<String, AnyObject>] , evolutions.count > 0 {
                     
-                    self._description = description
-                    print(description)
+                    if let nextEvol = evolutions[0]["to"] as? String {
+                        
+                        if nextEvol.range(of: "mega") == nil {
+                            
+                            self._nextEvolutionName = nextEvol.capitalized
+                            
+                            
+                            if let nextEvolId = evolutions[0]["resource_uri"] as? String {
+                                
+                                /* //One way
+                                 let index = nextEvolId.index(nextEvolId.startIndex, offsetBy: 16)
+                                 let nextevolidnew = nextEvolId.substring(from: index)
+                                 let token = nextevolidnew.components(separatedBy: "/")
+                                 
+                                 self._nextEvolutionId = token[0]*/
+                                
+                                let newStr = nextEvolId.replacingOccurrences(of: "/api/v1/pokemon/", with: "")
+                                let nextEvolId2 = newStr.replacingOccurrences(of: "/", with: "")
+                                
+                                self._nextEvolutionId = nextEvolId2
+
+                            }
+                            
+                            if let nextEvolLvl = evolutions[0]["level"] as? Int {
+                                
+                                self._nextEvolutionLevel = "\(nextEvolLvl)"
+                            }
+                            else {
+                                self._nextEvolutionLevel = ""
+                            }
+                        }
+                    }
                 }
+                else {
+                    self._nextEvolutionName = ""
+                    self._nextEvolutionLevel = ""
+                    self._nextEvolutionId = ""
+                    
+                }
+                
+
             }
-            
             completed()
-            
-        }
+        })
     }
+    
+ 
     
 }
